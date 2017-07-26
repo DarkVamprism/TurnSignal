@@ -60,7 +60,10 @@ public class Twister : MonoBehaviour
 
 	void CreateArms()
 	{
-		var Pchild = transform.GetChild(0);
+        LineRenderer curLineRenderer;
+        AnimationCurve curLineCurve;
+
+        var Pchild = transform.GetChild(0);
 		Pchild.transform.parent = null;
 
 		while(transform.childCount != 0)
@@ -76,15 +79,46 @@ public class Twister : MonoBehaviour
 		Pchild.name = "child_arm";
 		arms[0] = Pchild.gameObject.GetComponent<Twister_Arm>();
 
-		for(int i = 1; i < armCount; i++)
+        /* Make the first arm an arrow */
+        curLineCurve = new AnimationCurve();
+        curLineCurve.AddKey(0, 1);
+        curLineCurve.AddKey(0.04f, 0.191f);
+
+        curLineRenderer = arms[0].gameObject.GetComponent<LineRenderer>();
+        curLineRenderer.numCapVertices = 1;
+        curLineRenderer.widthCurve = curLineCurve;
+
+        for(int i = 1; i < armCount; i++)
 		{
 			var arm = Instantiate(Pchild, transform.position, transform.rotation);
 			arms[i] = arm.GetComponent<Twister_Arm>();
 
 			arm.transform.parent = transform;
 			arm.name = "child_arm";
-		}
-	}
+
+            /* Make the rest of the arms be bulbs (Changing the first arm changes them all
+             * even if the code to change is done after they are instantiated) 
+             *
+             * also make the backwards facing arm unique if it is directly behind */
+            curLineCurve = new AnimationCurve();
+            curLineCurve.AddKey(0, 1);
+            curLineCurve.AddKey(0.1541769f, 0.191f);
+
+            curLineRenderer = arm.GetComponent<LineRenderer>();
+
+            curLineRenderer.widthCurve = curLineCurve;
+
+            if ((i == (armCount / 2)) && (armCount % 2) == 0)
+            {
+                curLineRenderer.numCapVertices = 0;
+            }
+            else
+            {
+                curLineRenderer = arm.GetComponent<LineRenderer>();
+                curLineRenderer.numCapVertices = 6;
+            }
+        }
+    }
 
 	void UpdateArms()
 	{
