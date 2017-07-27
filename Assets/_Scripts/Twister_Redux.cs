@@ -34,6 +34,7 @@ public class Twister_Redux : MonoBehaviour
 	private float lastCoilS = 0f;
 	private float lastTwist = 0f;
 
+	private bool lastShowDirection = false;
 
 	private GameObject baseLine;
 	private GameObject lineHolder;
@@ -98,7 +99,8 @@ public class Twister_Redux : MonoBehaviour
 			(lastOD != outerDiameter) || 
 			(lastID != innerDiameter) ||
 			(lastCoilS != coilStrength) ||
-			(lastTwist != twist);
+			(lastTwist != twist) ||
+			(lastShowDirection != showDirection);
 	}
 
 	void SaveChange()
