@@ -22,6 +22,8 @@ public class Twister_Redux : MonoBehaviour
 	[Space(10)]
 	public float twist = 0f;
 
+	[Space(10)]
+	public bool showDirection = true;
 
 	private int lastArmCount = 0;
 	private int lastArmPoints = 0;
@@ -200,6 +202,19 @@ public class Twister_Redux : MonoBehaviour
 	
 		armLines = newLineA;
 		armObjs = newLineOA;
+
+		/* Make the forward and backwards facing arms unique */
+		if (showDirection)
+		{
+			newLineA[0].numCapVertices = 1;
+			newLineA[0].widthCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(0.25f, 0.2f));
+
+			if ((armCount % 2) == 0)
+			{
+			int backwardsArm = armCount / 2;
+			newLineA[backwardsArm].numCapVertices = 0;
+			}
+		}
 	}
 
 	void UpdateArmPointCount()
