@@ -1,11 +1,14 @@
-TurnSignal (New 2.0!)
+TurnSignal (New 2.1.2!)
 =
-A minimalistic intuitive visual IN-GAME utility for keeping track of Cord Wrapping/Tangling in SteamVR.
+
+![TurnSignal Icon](/Assets/_Res/turnsignal-v2.png)
+
+A minimalistic, intuitive, visual, IN-GAME utility for keeping track of Cord Wrapping/Tangling in SteamVR.
 
 ---
 
 ### Please Note (!):
- TurnSignal 2.0 (and up) is a much needed optimization upgrade, it uses proper SteamVR auto-startup, less CPU cycles, and is all around better! Please Upgrade if you have not!
+ TurnSignal 2.1.2 (and up) is a much needed optimization upgrade, it uses proper SteamVR auto-startup, less CPU cycles, and is all around better! Please Upgrade if you have not!
 
 ---
 ## ScreenShots - Updated for 2.0!
@@ -22,7 +25,7 @@ A minimalistic intuitive visual IN-GAME utility for keeping track of Cord Wrappi
 
 ['Twist Rate' Setting](https://gfycat.com/FrequentHeartfeltAsianwaterbuffalo)
 
-['Pedals' Setting](https://gfycat.com/CompetentPlainCormorant)
+['Petals' Setting](https://gfycat.com/CompetentPlainCormorant)
 
 ['Use Chaperone Color' Setting](https://gfycat.com/ContentBlueBlueshark) 
 (This one got straight up BORK'ed by the video compression, but the color, it really does match, I promise, if you could see it. Really.)
@@ -60,6 +63,7 @@ The Newest Settings menu includes:
 - A Toggle to auto-starting and closing the utility with SteamVR
 - A Toggle to use Chaperone Color instead of white (real time too!) 
 - A Toggle To Link Opacity and Twist'ed-ness together, so it shows clearer the more wrapped up your cord is.
+- A Toggle to only display the Flower / Floor Overlay when the Dashboard is Open.
 
 All settings are saved between app sessions, and shouldn't need to be set every time its launched.
 
@@ -80,26 +84,27 @@ I figured it couldn't hurt to have a visual, in-game tool, to subtly alert you t
 
 After that, I posted the tool on reddit, and somone cross posted THAT on geogaf, and I got a whole lot of positive feedback, (which I thank everyone for <3!), and that drove me to dedicate a bit more time to it (Another Week), and now its basically rewritten from scatch.
 
+### Part 3
+
+After THAT, I reposted 2.0 on reddit, and got another good critical reponse, and more features have been added as a 'stream' of users making issues (yay!) has slowly begun forming!
+
 ---
 ## About - OpenVR Overlays in Newest Version of Unity
 
-Now this was a minor chunk of a task, but after messing around with the provided overlays in the SteamVR plugin, finding out Unity only sends the 'Scene' App type to OpenVR, further finding out others who use unity for overlays mitigate this issue by using older Unity Versions;
+After fidling with Unity and the SteamVR plugin, I realized that somewhere in Unity's built-in support for OpenVR, it forces the appplication-type flag to be 'Scene' when what I needed is 'Overlay', or 'Background'. After searching and finding out others were mitigating the issue by just using older builds of unity, I decided to tackle the problem head on.
 
-I finally just went ahead and spun my own OpenVR Handler that initializes SteamVR, handles getting HMD/Left/Right controller positions and input, and outputting 2D texures as overlays in relation to Unity Worldspace.
 
-I Built the OVR_Overlay to be generic, and be used in arbitrary projects, which evolved (only in concept, rewrote from scratch) from TurnSignal 1.0's implementation, which was god-awful. Still is pretty bad, but now a bit more, self contained and trusty?
+The result is I basically resupun my own OpenVR handler that works outside of Unity's built-in support, and is now completely free of the SteamVR Plugin! (Although I totes Copied out majority chunk of SteamVR_Utils to get them sweet transform operations!)
 
-Anyway, It technically relies on 'having' the SteamVR plugin in a project, but requires you 100% disable the built in SteamVR/UnityVR stuff, as having both running in the same proccess REALLY screws with things.
+Its called OVRLay, and the entirety of its should be contained in the OVRLay folder under 'Assets', or in the unity package/archive in the root of the git.
 
-As for actually rendering an image, I just 1950's it, and set up 2D things in a 3D scene, and render-to-texture a flat UI image. Really saves time when compared to spinning a texture generation script.
-
-For the UI interaction in the Menu, I wrote a generic UnityUI handler that takes in 2D screen coords from SteamVR, and uses them as screen-coords for the menu-camera, then I fire GraphicRays against UI, and manually create a fake pointer-data event, submit it, and Bam, UnityUI works drop in, and I now mean Actually drop in, because in 1.x, Sliders and some stuff wouldn't work, but now its all pretty and does!
+Let me know if you find it useful or interesting!
 
 ---
 
 I think thats that, Credit/CopyRight to Valve for OpenVR/SteamVR stuff. 
 
-Thanks, and credit, to my friend Mason for some Icon assets I will end up using next release or so! (to replace the butt-ugly ones I made from a screen-snip of the unity window).
+Thanks and credit to my friend Mason Halstead (141art) for The Icon asset!
 
 Special thanks to [matzman666](https://github.com/matzman666) for giving me super-helpful resources for the SteamVR AutoStart App-Manifest, and Chaperone Color Retrivial Stuff, which he posted [Here!](https://www.reddit.com/r/Vive/comments/6oqspt/turnsignal_a_small_ingame_vr_utility_i_built_to/dkn6pj7/)
 
