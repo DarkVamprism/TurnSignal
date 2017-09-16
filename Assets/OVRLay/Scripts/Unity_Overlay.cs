@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+
 using Valve.VR;
 
 public class Unity_Overlay : MonoBehaviour 
@@ -25,12 +27,9 @@ public class Unity_Overlay : MonoBehaviour
 
 	[Space(10)]
 
-	public bool simulateInEditor = false;
-
-	[Space(10)]
-
 	public Texture overlayTexture;
 	public Camera cameraForTexture;
+	public bool dontForceRenderTexCam = false;
 	public Texture thumbNailTexture;
 
 	[Space(10)]
@@ -72,7 +71,6 @@ public class Unity_Overlay : MonoBehaviour
 
 	protected RenderTexture cameraTexture;
 
-	protected Texture _mainTex;
 
 	protected VRTextureBounds_t textureBounds = new VRTextureBounds_t();
 	protected HmdVector2_t mouseScale_t = new HmdVector2_t();
@@ -95,7 +93,6 @@ public class Unity_Overlay : MonoBehaviour
 	private Color lastColor = Color.black;
 
 	public bool lastVisible = false;
-
 
 	private bool isDashboardOpen = true;
 
@@ -146,7 +143,9 @@ public class Unity_Overlay : MonoBehaviour
 			int width = renderTexWidthOverride != 0 ? renderTexWidthOverride : (int) (cameraForTexture.pixelWidth);
 			int height = renderTexHeightOverride != 0 ? renderTexHeightOverride : (int) (cameraForTexture.pixelHeight);
 
-			cameraForTexture.enabled = false;
+			if(!dontForceRenderTexCam)
+				cameraForTexture.enabled = false;
+
 			cameraTexture = new RenderTexture(width, height, 24);
 
 			if(highQualityRenderTex)
@@ -155,7 +154,9 @@ public class Unity_Overlay : MonoBehaviour
 				cameraTexture.filterMode = FilterMode.Trilinear;
 			}
 
-			cameraForTexture.targetTexture = cameraTexture;
+			if(!dontForceRenderTexCam)
+				cameraForTexture.targetTexture = cameraTexture;
+
 			overlayTexture = cameraTexture;
 		}
 
@@ -263,7 +264,7 @@ public class Unity_Overlay : MonoBehaviour
 			UpdateMouse();
 
 		if(enableSimulatedMouse && simulateUnityMouseInput)
-				UpdateUnityMouseSim();
+			UpdateUnityMouseSim();
 	}
 
 	void UpdateMouse()
@@ -314,7 +315,18 @@ public class Unity_Overlay : MonoBehaviour
 			pd.dragging = true;
 		}
 
-		var nTargs = uiHandler.GetUITargets(canvasGraphicsCaster, pd);
+		HashSet<Selectable> nTargs = uiHandler.GetUITargets(canvasGraphicsCaster, pd);
+		
+		bool oldEn = cameraForTexture.enabled;
+		RenderTexture oldTex = cameraForTexture.targetTexture;
+
+		if(dontForceRenderTexCam) 
+		{
+			cameraForTexture.enabled = false;
+			cameraForTexture.targetTexture = cameraTexture;
+
+			nTargs = uiHandler.GetUITargets(canvasGraphicsCaster, pd);
+		}	
 
 		uiHandler.EnterTargets(nTargs);
 
@@ -351,6 +363,12 @@ public class Unity_Overlay : MonoBehaviour
 
 			downTargets.Clear();
 		}
+
+		if(dontForceRenderTexCam)
+		{
+			cameraForTexture.targetTexture = oldTex;
+			cameraForTexture.enabled = oldEn;
+		}
 	}
 
 	void UpdateTexture()
@@ -359,7 +377,28 @@ public class Unity_Overlay : MonoBehaviour
 			return;
 
 		if(cameraForTexture)
-			cameraForTexture.Render();
+		{
+			if(dontForceRenderTexCam)
+			{	
+				cameraForTexture.targetTexture = cameraTexture;
+				cameraForTexture.Render();
+				cameraForTexture.targetTexture = null;
+
+				if(!cameraForTexture.enabled)
+					cameraForTexture.enabled = true;
+			}
+			else
+			{
+				if(cameraForTexture.targetTexture != cameraTexture)
+					cameraForTexture.targetTexture = cameraTexture;
+
+				if(cameraForTexture.enabled)
+					cameraForTexture.enabled = false;
+				
+				cameraForTexture.Render();
+			}
+		}
+			
 
 		if(!overlayTexture)
 			return;
@@ -374,7 +413,6 @@ public class Unity_Overlay : MonoBehaviour
 		mouseScale.y = mouseScale_t.v1 = reverseAspect;
 
 		overlay.overlayTexture = overlayTexture;
-
 	}
 
 	void DrawOverlayThumbnail()
@@ -436,33 +474,32 @@ public class Unity_Overlay : MonoBehaviour
 
 		if( opts.deviceToTrack != deviceToTrack ) 
 		{
-			if(deviceToTrack == OverlayTrackedDevice.None)
-				overlay.overlayTransformType = VROverlayTransformType.VROverlayTransform_Absolute;
-			else
+			uint index = 0;
+			switch(deviceToTrack)
 			{
-				uint index = 0;
-				switch(deviceToTrack)
-				{
-					case OverlayTrackedDevice.HMD:
-						index = ovrHandler.poseHandler.hmdIndex;
-					break;
+				case OverlayTrackedDevice.HMD:
+					index = ovrHandler.poseHandler.hmdIndex;
+				break;
 
-					case OverlayTrackedDevice.RightHand:
-						index = ovrHandler.poseHandler.rightIndex;
-					break;
+				case OverlayTrackedDevice.RightHand:
+					index = ovrHandler.poseHandler.rightIndex;
+				break;
 
-					case OverlayTrackedDevice.LeftHand:
-						index = ovrHandler.poseHandler.leftIndex;
-					break;
+				case OverlayTrackedDevice.LeftHand:
+					index = ovrHandler.poseHandler.leftIndex;
+				break;
 
-					case OverlayTrackedDevice.CustomIndex:
-						index = customDeviceIndex;
-					break;
-				}
-
-				overlay.overlayTransformType = VROverlayTransformType.VROverlayTransform_TrackedDeviceRelative;
-				overlay.overlayTransformTrackedDeviceRelativeIndex = index;
+				case OverlayTrackedDevice.CustomIndex:
+					index = customDeviceIndex;
+				break;
 			}
+
+			VROverlayTransformType tType = deviceToTrack == OverlayTrackedDevice.None ?  
+				VROverlayTransformType.VROverlayTransform_Absolute :
+				VROverlayTransformType.VROverlayTransform_TrackedDeviceRelative;
+
+			overlay.overlayTransformType = tType;
+			overlay.overlayTransformTrackedDeviceRelativeIndex = index;
 
 			opts.deviceToTrack = deviceToTrack;
 		}

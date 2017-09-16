@@ -1,4 +1,4 @@
-TurnSignal (New 2.1.2!)
+TurnSignal (New 2.3!)
 =
 
 ![TurnSignal Icon](/Assets/_Res/turnsignal-v2.png)
@@ -7,8 +7,9 @@ A minimalistic, intuitive, visual, IN-GAME utility for keeping track of Cord Wra
 
 ---
 
-### Please Note (!):
- TurnSignal 2.1.2 (and up) is a much needed optimization upgrade, it uses proper SteamVR auto-startup, less CPU cycles, and is all around better! Please Upgrade if you have not!
+Get it Now, [On Steam](http://store.steampowered.com/app/689580/TurnSignal/)!
+===
+Still Free, Always Free!
 
 ---
 ## ScreenShots - Updated for 2.0!
@@ -35,16 +36,9 @@ A minimalistic, intuitive, visual, IN-GAME utility for keeping track of Cord Wra
 [Some Fun Stuff ;3](https://gfycat.com/ThoroughThunderousAmurminnow)
 
 ---
-## Download:
 
-[Click here to go to releases!](https://github.com/benotter/TurnSignal/releases)
-
----
-
-## Installation:
-To 'Install', please download the 'latest' release from [here](https://github.com/benotter/TurnSignal/releases), extract from the .zip file to where-ever you want to keep the utility on your computer, and run TurnSignal.exe! 
- 
- It should automatically register itself to start with SteamVR, and auto start/close with it from first launch on, but this is a toggle-able option, and can be freely disabled from the Dashboard Menu!
+## Download / Installation:
+You can download it on Steam, here's [The TurnSignal Steam Store Page!](http://store.steampowered.com/app/689580/TurnSignal/) (Still 100% Free!)
 
 ---
 ## Usage:
@@ -55,17 +49,21 @@ The settings menu to control Aspects of TurnSignal should be included in your St
 
 The Newest Settings menu includes:
 
+- (**New!**) Added Menu to Main Window to not waste space!
 - A Button Toggle to enable/disable the tools in-game display
 - A Button to Reset the utilities Rotation Tracking
 - An Opacity Setting 
 - A Scale Setting 
 - A Twist Rate Setting for manipulating the twist-i-ness levels 
+- (**New!**) A Height Setting
 - A Toggle to auto-starting and closing the utility with SteamVR
+- (**New!**) Finally, A Toggle to Hide the Main Window(!)
 - A Toggle to use Chaperone Color instead of white (real time too!) 
 - A Toggle To Link Opacity and Twist'ed-ness together, so it shows clearer the more wrapped up your cord is.
 - A Toggle to only display the Flower / Floor Overlay when the Dashboard is Open.
+- (**New!**) A link to Controller Settings Menu, for placing flower on hand instead of the floor
 
-All settings are saved between app sessions, and shouldn't need to be set every time its launched.
+All settings are saved between app sessions, and shouldn't need to be set every time its launched, plus (in Steam Version 2.2) Settings are also stored in SteamCloud!
 
 The utility will still track rotations even when its toggled off from the dashboard menu, so if/when its toggled back on, it will still show turns as if was left on, with the turns intact.
 
@@ -88,6 +86,10 @@ After that, I posted the tool on reddit, and somone cross posted THAT on geogaf,
 
 After THAT, I reposted 2.0 on reddit, and got another good critical reponse, and more features have been added as a 'stream' of users making issues (yay!) has slowly begun forming!
 
+### Part 4
+
+After THAAAAT, I decided that the best practice is full on work, so I've thrown myself at getting TurnSignal onto Steam to streamline updates and simplify access to the utility!
+
 ---
 ## About - OpenVR Overlays in Newest Version of Unity
 
@@ -96,15 +98,15 @@ After fidling with Unity and the SteamVR plugin, I realized that somewhere in Un
 
 The result is I basically resupun my own OpenVR handler that works outside of Unity's built-in support, and is now completely free of the SteamVR Plugin! (Although I totes Copied out majority chunk of SteamVR_Utils to get them sweet transform operations!)
 
-Its called OVRLay, and the entirety of its should be contained in the OVRLay folder under 'Assets', or in the unity package/archive in the root of the git.
+Its called OVRLay, and it can be found [Here](https://github.com/benotter/OVRLay), but the versions may be slightly different as turnsignal gets more customized (outdated).
 
 Let me know if you find it useful or interesting!
 
 ---
 
-I think thats that, Credit/CopyRight to Valve for OpenVR/SteamVR stuff. 
+I think thats that, Credit/Copyright to Valve for OpenVR/SteamVR stuff. 
 
-Thanks and credit to my friend Mason Halstead (141art) for The Icon asset!
+Thanks and credit to my friend Mason Halstead (141art) for The Icon, and Steam Store Art assets!
 
 Special thanks to [matzman666](https://github.com/matzman666) for giving me super-helpful resources for the SteamVR AutoStart App-Manifest, and Chaperone Color Retrivial Stuff, which he posted [Here!](https://www.reddit.com/r/Vive/comments/6oqspt/turnsignal_a_small_ingame_vr_utility_i_built_to/dkn6pj7/)
 

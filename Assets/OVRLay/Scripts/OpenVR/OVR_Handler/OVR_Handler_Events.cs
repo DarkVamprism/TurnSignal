@@ -4,6 +4,8 @@ using Valve.VR;
 
 public partial class OVR_Handler 
 {
+    public bool logDebug = false;
+
     public OpenVRChange onOpenVRChange = delegate(bool connected){};
     public StandbyChange onStandbyChange = delegate(bool inStandbyMode){};
     public DashboardChange onDashboardChange = delegate(bool open){};
@@ -29,7 +31,9 @@ public partial class OVR_Handler
         EVREventType type = (EVREventType) pEvent.eventType;
         switch(type)
         {
-            case EVREventType.VREvent_QuitAcknowledged:
+            case EVREventType.VREvent_Quit:
+                Debug.Log("VR - QUIT - EVENT");
+                onOpenVRChange(false);
             break;
             
             case EVREventType.VREvent_DashboardActivated:
@@ -51,7 +55,8 @@ public partial class OVR_Handler
             break;
 
             default:
-                Debug.Log("OVR_Handler Event: " + type);        
+                if(logDebug)
+                    Debug.Log("OVR_Handler Event: " + type);        
             break;
         }
     }

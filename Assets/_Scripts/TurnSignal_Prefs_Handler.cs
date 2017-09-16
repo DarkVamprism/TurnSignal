@@ -1,53 +1,76 @@
-﻿using System.Collections;
+﻿using System;
+using System.IO;
+using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
+using Steamworks;
+
 public class TurnSignal_Prefs_Handler : MonoBehaviour 
-{   
-    private float _Scale = 2f;
+{       
+    private TurnSignalPrefs prefs = new TurnSignalPrefs();
+    private string _filePath = "";
+    private string _fileName = "";
+
+    public void SetFilePath(string path, string fileName)
+    {
+        _filePath = path;
+        _fileName = fileName;
+    }
+
 	public float Scale 
     {
         get 
         {
-            _Scale = PlayerPrefs.GetFloat("scale", 2f);
-            return _Scale;
+            return prefs.Scale;
         }
         set 
         {
-            _Scale = value;
-            PlayerPrefs.SetFloat("scale", _Scale);
+            prefs.Scale = value;
+            Save();
         }
     }
 
-    private float _Opacity = 1f;
     public float Opacity 
     {
         get 
-        {                
-            _Opacity = PlayerPrefs.GetFloat("opacity", 0.03f);
-            return _Opacity;
+        {
+            return prefs.Opacity;
         }
         set
         {
-            _Opacity = value;
-            PlayerPrefs.SetFloat("opacity", _Opacity);
+            prefs.Opacity = value;
+            Save();
         }
     }
 
-    private int _TwistRate = 10;
+    public float Height 
+    {
+        get 
+        {
+            return prefs.Height;
+        }
+        set 
+        {
+            prefs.Height = value;
+            Save();
+        }
+    }
+
     public int TwistRate 
     {
         get
         {
-            _TwistRate = PlayerPrefs.GetInt("twistrate", 10);    
-            return _TwistRate;
+            return prefs.TwistRate;
         }
         set
         {
-            _TwistRate = value;
-            PlayerPrefs.SetInt("twistrate", _TwistRate);
+            prefs.TwistRate = value;
+            Save();
         }
     }
+
     public float TwistRateF
     {
         get 
@@ -60,20 +83,19 @@ public class TurnSignal_Prefs_Handler : MonoBehaviour
         }
     }
 
-    private int _Petals = 6;
     public int Petals 
     {
         get 
         {
-            _Petals = PlayerPrefs.GetInt("petalcount", 6);
-            return _Petals;
+            return prefs.PetalCount;
         }
         set 
         {
-            _Petals = value;
-            PlayerPrefs.SetInt("petalcount", value);
+            prefs.PetalCount = value;
+            Save();
         }
     }
+
     public float PetalsF
     {
         get 
@@ -85,74 +107,242 @@ public class TurnSignal_Prefs_Handler : MonoBehaviour
             Petals = (int) value;
         }
     }
-    private bool _StartWithSteamVR = true;
+
+    public bool HideMainWindow 
+    {
+        get 
+        {
+            return prefs.HideMainWindow;
+        }
+        set 
+        {
+            prefs.HideMainWindow = value;
+            Save();
+        }
+    }
+
     public bool StartWithSteamVR
     {
         get 
         {
-            _StartWithSteamVR = (PlayerPrefs.GetInt("startwithsteamvr", 1) == 1);
-            return _StartWithSteamVR;
+            return prefs.StartWithSteamVR;
         }
         set
         {
-            _StartWithSteamVR = value;
-            PlayerPrefs.SetInt("startwithsteamvr", _StartWithSteamVR ? 1 : 0);
+            prefs.StartWithSteamVR = value;
+            Save();
         }
     }
-
-    private bool _UseChaperoneColor = false;
     public bool UseChaperoneColor 
     {
         get 
         {
-            _UseChaperoneColor = (PlayerPrefs.GetInt("usechapcolor", 0) == 1);
-            return _UseChaperoneColor;
+            return prefs.UseChaperoneColor;
         }
         set 
         {
-            _UseChaperoneColor = value;
-            PlayerPrefs.SetInt("usechapcolor", _UseChaperoneColor ? 1 : 0);
+            prefs.UseChaperoneColor = value;
+            Save();
         }
     }
 
-    private bool _LinkOpacityWithTwist = false;
     public bool LinkOpacityWithTwist
     {
         get 
         {
-            
-            _LinkOpacityWithTwist = (PlayerPrefs.GetInt("linktwistalpha", 0) == 1);
-            return _LinkOpacityWithTwist;
+            return prefs.LinkOpacityWithTwist;
         }
         set 
         {
-            _LinkOpacityWithTwist = value;
-            PlayerPrefs.SetInt("linktwistalpha", _LinkOpacityWithTwist ? 1 : 0);
+            prefs.LinkOpacityWithTwist = value;
+            Save();
         }
     }
 
-    private bool _OnlyShowInDashboard = false;
     public bool OnlyShowInDashboard 
     {
         get 
         {
-            _OnlyShowInDashboard = (PlayerPrefs.GetInt("onlyshowindash", 0) == 1);
-            return _OnlyShowInDashboard;
+            return prefs.OnlyShowInDashboard;
         }
         set 
         {
-            _OnlyShowInDashboard = value;
-            PlayerPrefs.SetInt("onlyshowindash", (_OnlyShowInDashboard ? 1 : 0));
+            prefs.OnlyShowInDashboard = value;
+            Save();
         }
     }
 
-    public void Save()
+    public int LinkDevice 
     {
-        PlayerPrefs.Save();
+        get 
+        {
+            return prefs.LinkDevice;
+        }
+        set 
+        {
+            prefs.LinkDevice = value;
+            Save();
+        }
+    }
+
+    public bool FlipSides 
+    {
+        get 
+        {
+            return prefs.FlipSides;
+        }
+        set 
+        {
+            prefs.FlipSides = value;
+            Save();
+        }
+    }
+
+
+    public bool Save(bool skipSteam = false, TurnSignalPrefs overrideP = null)
+    {
+        TurnSignalPrefs p;
+
+        if(overrideP != null)
+            p = overrideP;
+        else
+            p = prefs;
+
+        p.lastEditTime = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+        string text = JsonUtility.ToJson(prefs, true);
+        string fullP = _filePath + _fileName;
+
+        Debug.Log("Writing Local Prefs!");
+        File.WriteAllText(fullP, text);
+
+        if(!skipSteam)
+            SteamSave();
+
+        return File.Exists(fullP);
+    }
+
+    public bool SteamSave() 
+    {
+        if(SteamManager.Initialized && SteamRemoteStorage.IsCloudEnabledForAccount())
+        {
+            string text = JsonUtility.ToJson(prefs, true);
+            
+            var bytes = System.Text.Encoding.ASCII.GetBytes(text);
+            var byteCount = System.Text.Encoding.ASCII.GetByteCount(text);
+
+            Debug.Log("Writing Prefs to SteamCloud!");
+            return SteamRemoteStorage.FileWrite(_fileName, bytes, byteCount);
+        }
+        else
+            return false;
+    }
+
+    public bool Load()
+    {
+        TurnSignalPrefs fileP = FileLoad();
+        TurnSignalPrefs steamP = SteamLoad();
+
+        bool res = false;
+        
+        bool skipSteam = false;
+        TurnSignalPrefs p = new TurnSignalPrefs();
+
+        if(fileP != null && steamP != null) 
+        {
+            if(fileP.lastEditTime >= steamP.lastEditTime)
+                p = fileP;
+            else 
+            {
+                p = steamP;
+                skipSteam = true;
+            }
+
+            res = true;
+        }
+        else if(fileP == null && steamP != null)
+        {
+            p = steamP;
+            skipSteam = true;
+            res = true;
+        }
+        else if(fileP != null && steamP == null)
+        {
+            p = fileP;
+            res = true;
+        }
+        
+        prefs = p;
+        Save(skipSteam);
+        
+        return res;
+    }
+
+    public TurnSignalPrefs SteamLoad() 
+    {
+        if(SteamManager.Initialized && SteamRemoteStorage.IsCloudEnabledForAccount())
+        {
+            if(SteamRemoteStorage.FileExists(_fileName))
+            {
+                string text = "";
+                var byteCount = SteamRemoteStorage.GetFileSize(_fileName);
+                var bytes = new byte[byteCount];
+                
+                Debug.Log("Reading Prefs from SteamCloud!");
+                var fileC = SteamRemoteStorage.FileRead(_fileName, bytes, byteCount);
+
+                if(fileC > 0)
+                    text = System.Text.Encoding.ASCII.GetString(bytes);
+                    
+                var o = (TurnSignalPrefs) JsonUtility.FromJson(text, typeof(TurnSignalPrefs));
+
+                if(o != null)
+                    return o;        
+            }   
+        }
+        
+        return null;
+    }
+
+    public TurnSignalPrefs FileLoad()
+    {
+        string fullP = _filePath + _fileName;
+        
+        if(!File.Exists(fullP))
+            return null;
+
+        Debug.Log("Reading Local Prefs!");
+        string text = File.ReadAllText(fullP);
+
+        return (TurnSignalPrefs) JsonUtility.FromJson(text, typeof(TurnSignalPrefs));
     }
 
     public void Reset()
     {
-        PlayerPrefs.DeleteAll();
+        prefs = new TurnSignalPrefs();
+        Save();
+        Load();
     }
+}
+
+[System.Serializable]
+public class TurnSignalPrefs 
+{
+    public Int32 lastEditTime = 0;
+
+    public float Scale = 2f;
+    public float Opacity = 0.03f;
+    public float Height = 0f;
+
+    public int TwistRate = 10;
+    public int PetalCount = 6;
+
+    public bool StartWithSteamVR = true;
+    public bool HideMainWindow = false;
+    public bool UseChaperoneColor = false;
+    public bool LinkOpacityWithTwist = false;
+    public bool OnlyShowInDashboard = false;
+
+    public int LinkDevice = 0;
+    public bool FlipSides = false;
 }

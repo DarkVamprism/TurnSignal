@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class Unity_SteamVR_Handler : MonoBehaviour 
 {
 	public float steamVRPollTime = 0.05f;
+	public bool connectedToSteam = false;
 
 	[Space(10)]
 
@@ -17,23 +18,38 @@ public class Unity_SteamVR_Handler : MonoBehaviour
 
 	public bool autoUpdate = true;
 
+	public bool debugLog = true;
+
 	public UnityEvent onSteamVRConnect = new UnityEvent();
 	public UnityEvent onSteamVRDisconnect = new UnityEvent();
 
 
 	private OVR_Handler ovrHandler = OVR_Handler.instance;
 
-	private OVR_Overlay_Handler overlayHandler { get { return ovrHandler.overlayHandler; } }
-	private OVR_Pose_Handler poseHandler { get { return ovrHandler.poseHandler; } }
+	public OVR_Overlay_Handler overlayHandler { get { return ovrHandler.overlayHandler; } }
+	public OVR_Pose_Handler poseHandler { get { return ovrHandler.poseHandler; } }
 
 	private float lastSteamVRPollTime = 0f;
+	private bool lastDebugLog = false;
 
 	void Start()
 	{
 		// Will always do a check on start first, then use timer for polling
 		lastSteamVRPollTime = steamVRPollTime + 1f;
+		ovrHandler.onOpenVRChange += OnOpenVRChange;
 	}
 
+	void OnOpenVRChange(bool connected) 
+	{
+		connectedToSteam = connected;
+
+		if(!connected)
+		{
+			onSteamVRDisconnect.Invoke();
+			ovrHandler.ShutDownOpenVR();
+		}
+			
+	}
 	void Update() 
 	{
 		if(autoUpdate)
@@ -46,6 +62,12 @@ public class Unity_SteamVR_Handler : MonoBehaviour
 			return;
 
 		ovrHandler.UpdateAll();
+
+		if(lastDebugLog != debugLog)
+		{
+			ovrHandler.logDebug = debugLog;
+			lastDebugLog = debugLog;
+		}
 
 		if(hmdObject)
 			poseHandler.SetTransformToTrackedDevice(hmdObject.transform, poseHandler.hmdIndex);
@@ -94,7 +116,7 @@ public class Unity_SteamVR_Handler : MonoBehaviour
 			else
 			{
 				Debug.Log("Connected to SteamVR!");
-
+				
 				onSteamVRConnect.Invoke();
 
 				return true;

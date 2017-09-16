@@ -5,13 +5,24 @@ using UnityEngine.UI;
 
 public class TurnSignal_Floor_Redux : MonoBehaviour 
 {
+	public Camera floorRigCamera;
+	
+	[Space(10)]
+	
 	public Twister_Redux turnObj;
 
 	[Space(10)]
 
 	public bool autoUpdate = true;
+	public bool reversed = false;
 
 	[Space(10)]
+
+	public Unity_Overlay overlay;
+
+	[Space(10)]
+
+	public Unity_SteamVR_Handler vrHandler;
 	public GameObject hmd;
 
 	[Space(10)]
@@ -37,6 +48,10 @@ public class TurnSignal_Floor_Redux : MonoBehaviour
 	public float curRotation = 0f;
 
 	public float turnProgress = 0f;
+
+	[Space(10)]
+
+	public float debugYRot = 0f;
 
 
 	// Methods to make UI easier;
@@ -74,6 +89,9 @@ public class TurnSignal_Floor_Redux : MonoBehaviour
 	{
 		UpdateHMDRotation();
 		UpdateTurnObj();
+
+		if(overlay)
+			overlay.UpdateOverlay();
 	}
 
 	void UpdateHMDRotation()
@@ -81,30 +99,41 @@ public class TurnSignal_Floor_Redux : MonoBehaviour
 		if(!hmd)
 			return;
 
+		if(!vrHandler.connectedToSteam)
+			return;
+
+		var rot = vrHandler.poseHandler.GetPosRotation(vrHandler.poseHandler.hmdIndex);
+		debugYRot = rot.y;
+
 		if(initialRotation == 0)
 		{
-			curRotation = initialRotation = hmd.transform.rotation.eulerAngles.y;
+			curRotation = initialRotation = rot.y * 360f;
 			return;
 		}
 
 		lastRotation = curRotation;
-		curRotation = hmd.transform.rotation.eulerAngles.y;
+		curRotation = rot.y * 360f;
 
 		float diff = curRotation - lastRotation;
 
 		if(diff > 350f || diff < -350f)
-			return;
+			diff = (-1f * curRotation) - lastRotation;
 
 		rawTurns += diff;
 
-		turns = (int) ( ( Mathf.Abs(rawTurns) + turnTolerance ) / 360f );
-		turnProgress = Mathf.Abs(rawTurns) / (float) (maxTurns * 360f);
+		turns = (int) ( ( Mathf.Abs(rawTurns) + turnTolerance ) / 720f );
+		turnProgress = Mathf.Abs(rawTurns) / (float) (maxTurns * 720f);
 
 		lastDiff = diff;
 	}
 
 	void UpdateTurnObj()
 	{
-		turnObj.twist = rawTurns / (maxTurns * 360f);
+		float raw = rawTurns / (maxTurns * 720f);
+
+		if(reversed)
+			raw *= -1f;
+
+		turnObj.twist = raw;
 	}
 }
